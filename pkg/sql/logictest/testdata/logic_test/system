@@ -428,6 +428,7 @@ ORDER BY name
 ----
 cluster.secret
 diagnostics.reporting.enabled
+kv.range_merge.queue_enabled
 trace.debug.enable
 version
 
