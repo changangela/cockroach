@@ -65,6 +65,9 @@ type virtualSchemaTable struct {
 	// virtualTableNode. This function returns a virtualTableGenerator function
 	// which generates the next row of the virtual table when called.
 	generator func(ctx context.Context, p *planner, db *DatabaseDescriptor) (virtualTableGenerator, error)
+
+	descriptorGenerator func(ctx context.Context, p *planner, db *DatabaseDescriptor) (virtualTableDescriptorGenerator,
+		error)
 }
 
 // virtualSchemas holds a slice of statically registered virtualSchema objects.
@@ -208,8 +211,8 @@ func NewVirtualSchemaHolder(
 				}
 			}
 			tables[tableDesc.Name] = virtualTableEntry{
-				tableDef: table,
-				desc:     &tableDesc,
+				tableDef:                   table,
+				desc:                       &tableDesc,
 				validWithNoDatabaseContext: schema.validWithNoDatabaseContext,
 			}
 			orderedTableNames = append(orderedTableNames, tableDesc.Name)
