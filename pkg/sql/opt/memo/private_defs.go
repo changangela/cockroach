@@ -173,6 +173,8 @@ type VirtualScanOpDef struct {
 	// This is always every column in the virtual table (i.e. never a subset even
 	// if all columns are not needed).
 	Cols opt.ColSet
+
+	CheapTable opt.TableID
 }
 
 // CanProvideOrdering returns true if the scan operator returns rows that

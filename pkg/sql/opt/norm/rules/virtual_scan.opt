@@ -1,0 +1,11 @@
+[RangesWithLeases, Normalize]
+(VirtualScan
+  $def: (OnRangesTable $def)
+)
+=>
+(Project
+    (VirtualScan
+      $newDef: (MakeRangesWithLeasesTable $def)
+    )
+    (ProjectColLeases $newDef)
+)

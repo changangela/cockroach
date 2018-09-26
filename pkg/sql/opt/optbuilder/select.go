@@ -286,7 +286,23 @@ func (b *Builder) buildScan(
 		if indexFlags != nil {
 			panic(builderError{errors.Errorf("index flags not allowed with virtual tables")})
 		}
+
 		def := memo.VirtualScanOpDef{Table: tabID, Cols: tabColIDs}
+
+		// todo: <changangela>: temporarily put this here for experimentation
+		if tn.SchemaName == "crdb_internal" && tn.TableName == "ranges" {
+			cheapTn := tree.MakeTableNameWithSchema(tn.CatalogName, tn.SchemaName, "ranges_no_leases")
+			cheapTable := b.resolveDataSource(&cheapTn)
+			// todo: <changangela> instead of using custom field, use the metadata instead
+			switch t := cheapTable.(type) {
+			case opt.Table:
+				cheapTabID := md.AddTable(t)
+				def.CheapTable = cheapTabID
+			default:
+				panic(unimplementedf("this code should never be reached"))
+			}
+		}
+
 		outScope.group = b.factory.ConstructVirtualScan(b.factory.InternVirtualScanOpDef(&def))
 	} else {
 		def := memo.ScanOpDef{Table: tabID, Cols: tabColIDs}

@@ -1219,3 +1219,25 @@ func (c *CustomFuncs) FoldComparison(op opt.Operator, left, right memo.GroupID) 
 	}
 	return c.f.ConstructConstVal(result)
 }
+
+// todo: <changangela> no longer a customfunc, move this to buildScanner
+func (c *CustomFuncs) OnRangesTable(private memo.PrivateID) bool {
+	def := c.mem.LookupPrivate(private).(*memo.VirtualScanOpDef)
+	table := c.mem.Metadata().Table(def.Table)
+	return table.Name().TableName == "ranges" && table.Name().SchemaName == "crdb_internal"
+}
+
+func (c *CustomFuncs) MakeRangesWithLeasesTable(private memo.PrivateID) memo.PrivateID {
+	def := c.mem.LookupPrivate(private).(*memo.VirtualScanOpDef)
+	cheapCols := def.Cols.Shift(-1)
+	cheapCols.Remove(0)
+	cheapDef := memo.VirtualScanOpDef{
+		Table: def.CheapTable,
+		Cols:  cheapCols,
+	}
+	return c.f.InternVirtualScanOpDef(&cheapDef)
+}
+
+func (c *CustomFuncs) ProjectColLeases(private memo.PrivateID) memo.GroupID {
+	pb := projectionsBuilder{f: c.f}
+}
