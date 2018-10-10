@@ -119,14 +119,6 @@ func (s *streamGroupAccumulator) nextGroup(
 			ret := s.curGroup[:n:n]
 			s.curGroup = s.curGroup[:0]
 
-			if !s.minAllocatedSet {
-				err := s.memAcc.SetMinAllocated(evalCtx.Context, int64(row.Size()))
-				if err != nil {
-					return nil, &ProducerMetadata{Err: err}
-				}
-				s.minAllocatedSet = true
-			}
-
 			s.memAcc.Empty(evalCtx.Context)
 
 			s.leftoverRow = row

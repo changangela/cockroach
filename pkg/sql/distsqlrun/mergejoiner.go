@@ -18,6 +18,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/cockroachdb/cockroach/pkg/util/mon"
+
 	"fmt"
 
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
@@ -95,7 +97,12 @@ func newMergeJoiner(
 		return nil, err
 	}
 
-	m.MemMonitor = NewMonitor(flowCtx.EvalCtx.Ctx(), flowCtx.EvalCtx.Mon, "mergejoiner-mem")
+	reservedAcc := flowCtx.EvalCtx.Mon.MakeBoundAccount()
+	reservedAcc.Grow(flowCtx.EvalCtx.Context, mon.DefaultPoolAllocationSize)
+
+	subMonitor := mon.MakeMonitorInheritWithLimit("mergejoiner-mem", 0, flowCtx.EvalCtx.Mon)
+	subMonitor.Start(flowCtx.EvalCtx.Context, flowCtx.EvalCtx.Mon, reservedAcc)
+	m.MemMonitor = &subMonitor
 
 	var err error
 	m.streamMerger, err = makeStreamMerger(
