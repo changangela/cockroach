@@ -41,7 +41,7 @@ func runTests(
 ) {
 	rng, _ := randutil.NewPseudoRand()
 
-	for _, batchSize := range []uint16{1, 2, 3, 16, 1024} {
+	for _, batchSize := range []uint16{3} {
 		for _, useSel := range []bool{false, true} {
 			t.Run(fmt.Sprintf("batchSize=%d/sel=%t", batchSize, useSel), func(t *testing.T) {
 				inputSources := make([]Operator, len(tups))
